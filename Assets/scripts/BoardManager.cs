@@ -18,6 +18,9 @@ namespace Completed
 		public int rows = 4;                                            //Number of rows in our game board.
 		public GameObject floorTile;
 
+		public int maxCages = 5;
+		public int maxTables = 5;
+
 		public int numberCages = 3;
 		public int numberMonsters = 2;
 		public GameObject cage; // prefab sprite w/ mgr
@@ -26,6 +29,7 @@ namespace Completed
 
 		public GameObject[] monsters; // monster prefabs, later accessed through cages
 		private List <MonsterManager> monsterManagers;
+		public float monsterPrice = 150f;
 
 		public GameObject playerPrefab; // prefab
 		private GameObject player;
@@ -37,9 +41,28 @@ namespace Completed
 		private Transform boardHolder;     
 
 		private ResourcesManager resources;
-		private AlertPanelManager alertManager;
+		public AlertPanelManager alertManager;
 
 		public GameObject activeMonster = null;
+
+		public float foodPrice = 10f;
+
+		private NotificationsManager notifManager;
+
+
+		void Start() {
+			notifManager = GameObject.Find ("Notifications").GetComponent<NotificationsManager> ();
+		}
+
+		void Update() {
+		
+			if (resources.money >= resources.playerLevel * 1000f) {
+				resources.playerLevel += 1;
+				alertManager.ShowMessage("LEVEL UP! Thanks to your efforts our knowledge of theses strange creatures has grown by leaps and bounds.");
+			}
+
+		}
+
 
 		//Sets up the outer walls and floor (background) of the game board.
 		void BoardSetup ()
@@ -90,7 +113,8 @@ namespace Completed
 			player = Instantiate (playerPrefab, new Vector3 (0f, (rows-1)*2f, -.2f), Quaternion.identity) as GameObject;
 			player.transform.SetParent (boardHolder);
 		}
-				
+			
+
 		public void SetupScene (int level)
 		{
 			// init lists
@@ -108,8 +132,17 @@ namespace Completed
 
 		public void buildCage() {
 		
-			if (resources.money < cagePrice) 
+
+
+			if (resources.money < cagePrice) {
+				alertManager.ShowMessage("Not enough money to purchase!");
 				return;
+			}
+
+			if (cages.Count >= maxCages) {
+				alertManager.ShowMessage("Maximum number of cages for this level reached.");
+				return;
+			}
 
 			resources.money -= cagePrice;
 
@@ -124,10 +157,40 @@ namespace Completed
 			CageManager cm = c.GetComponent<CageManager>();
 			cages.Add(cm);
 
-		
+			string msg = string.Format("Purchased Cage for ${0}", cagePrice);
+			notifManager.ShowNotice (msg);
+
 		}
 
+
+		public void FoodWaterRefill() {
+			
+			if (resources.money < foodPrice) {
+				alertManager.ShowMessage("You need more money to purchase a Food and Water Refill.");
+				return;
+			}
+			
+			resources.money -= foodPrice;
+
+			resources.food += 10;
+			resources.water += 10;
+
+			string msg = string.Format("Purchased 10 Food and 10 Water for ${0}", foodPrice);
+			notifManager.ShowNotice (msg);
+
+		}
+
+
 		public void AddMonster() {
+
+			HideActionPanel ();
+
+			if (resources.money < monsterPrice) {
+				alertManager.ShowMessage("You need more money to purchase a Monster.");
+				return;
+			}
+			
+			resources.money -= monsterPrice;
 
 			// find 1st empty cage
 			CageManager emptyCageMgr = null;
@@ -138,9 +201,10 @@ namespace Completed
 				}			
 			}
 
-			if (emptyCageMgr == null)
+			if (emptyCageMgr == null) {
+				alertManager.ShowMessage("No empty cages available!");
 				return;
-
+			}
 			
 			// add monster to cage
 			numberMonsters++;
@@ -159,15 +223,26 @@ namespace Completed
 			monsterManagers.Add (mm);	
 
 			emptyCageMgr.monster = m; // bookkeeping
-		
+					
+			string msg = string.Format("Purchased 1 Monster for ${0}", monsterPrice);
+			notifManager.ShowNotice (msg);
+
+
 		}
 
 
 		public void AddLabTable() {
 			
-			if (resources.money < tablePrice) 
+			if (resources.money < tablePrice) {
+				alertManager.ShowMessage("You need more money to purchase a Lab Table ($100).");
 				return;
-			
+			}
+
+			if (tables.Count >= maxTables) {
+				alertManager.ShowMessage("Maximum number of tables for this level reached.");
+				return;
+			}
+
 			resources.money -= tablePrice;
 
 			// 1st table's position
@@ -184,21 +259,34 @@ namespace Completed
 
 			GameObject t = Instantiate (labTable, new Vector3 (xpos, ypos, -.05f), Quaternion.identity) as GameObject;
 			t.transform.SetParent(boardHolder.transform);
-			tables.Add (t.GetComponent<TableManager> ());
-
+			tables.Add (t.GetComponent<TableManager> ());		
+			
+			string msg = string.Format("Purchased 1 Lab Table for ${0}", tablePrice);
+			notifManager.ShowNotice (msg);
 
 		}
 
 		public void Water() {		
 			HideActionPanel ();
-			MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
-			mm.Water ();
+
+			if (resources.water > 0) {
+				MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
+				mm.Water ();
+			} else {
+				alertManager.ShowMessage("No water left!");
+			}
 		}
 				
 		public void Feed() {			
 			HideActionPanel ();
-			MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
-			mm.Feed ();
+
+			if (resources.food > 0) {
+				MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
+				mm.Feed ();
+			} else {
+				alertManager.ShowMessage("No food left!");
+			}
+
 		}
 
 		public void DoExperiment() {
@@ -207,13 +295,18 @@ namespace Completed
 
 			MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
 
+			if (mm == null) {
+				alertManager.ShowMessage ("You have no monsters to experiment on!");
+				return;
+			}		
+
 			// find open lab table
 			TableManager tm = tables.Find (x => x.monster == null);
 
 			// if there's no open table, can't experiment
 			if (tm == null) {
 				Debug.Log ("No table to experiment on!");
-				alertManager.ShowMessage("You need a lab table to conduct experiments!");
+				alertManager.ShowMessage("You need an open lab table to conduct experiments!");
 				return;
 			}
 
@@ -229,19 +322,19 @@ namespace Completed
 
 		}
 
-		public void EndExperiment() {
+		public void EndExperiment(MonsterManager mm) {
 		
 			// find monster's home cage 
-			CageManager cage = cages.Find (x=> x.monster == activeMonster);
-			TableManager table = tables.Find (x=> x.monster == activeMonster);
+			CageManager cage = cages.Find (x=> x.monster == mm.gameObject);
+			TableManager table = tables.Find (x=> x.monster == mm.gameObject);
 
 			Vector3 newPos = new Vector3 (cage.gameObject.transform.position.x, cage.gameObject.transform.position.y, -.05f);
-			activeMonster.transform.position = newPos;
+			mm.gameObject.transform.position = newPos;
 
 			table.monster = null;
 			activeMonster = null;
-
-
+		
+			notifManager.ShowNotice ("Experiment Complete!");
 
 		}
 

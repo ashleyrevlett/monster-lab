@@ -15,6 +15,11 @@ namespace Completed {
 		public int secondsPerDay = 600; // 10 min / day
 		public int daysPlayed = 0;
 
+		private NotificationsManager notifManager;
+
+		void Start() {
+			notifManager = GameObject.Find ("Notifications").GetComponent<NotificationsManager> ();
+		}
 
 		void Update () {		
 			timePlayed += Time.deltaTime;
@@ -24,6 +29,10 @@ namespace Completed {
 		public IEnumerator GiveMoney(float amount, int numberTimes, float delayTime ) {		
 			for (int i = 0; i < numberTimes; i++) {					
 				money = Mathf.Max (0f, money + amount);	
+
+				string msg = string.Format("Earned ${0}", amount.ToString("F2"));
+				notifManager.ShowNotice (msg);
+
 				yield return new WaitForSeconds (delayTime);	
 			}
 		}

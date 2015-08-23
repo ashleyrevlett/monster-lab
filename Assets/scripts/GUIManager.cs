@@ -12,7 +12,6 @@ namespace Completed	{
 		public Text water;
 		public Text monsterCount;
 		public Text money;
-		public Text science;
 
 		private ResourcesManager resources;
 		private BoardManager board;
@@ -35,8 +34,6 @@ namespace Completed	{
 			water.text = "WATER: " + resources.water.ToString ();
 			monsterCount.text = "MONSTERS: " + board.numberMonsters + " / " + board.numberCages;
 			money.text = "MONEY: $" + resources.money.ToString ("F2");
-			science.text = "SCIENCE: " + resources.science;
-
 		}
 	}
 
