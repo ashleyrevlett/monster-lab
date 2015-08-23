@@ -16,6 +16,8 @@ namespace Completed
 
 		public float hungerDamage = 2f;
 		public float thirstDamage = 5f;
+		public float healRate = .1f;
+
 
 		public Vector2 appetiteMinMax = new Vector2(.1f, 2f);
 		private float appetite = 0;
@@ -95,8 +97,12 @@ namespace Completed
 		}
 
 		void Tick() {	
-			hunger += appetite;
-			thirst += appetite*1.5f;
+
+			if (isAlive) {
+				hunger += appetite;
+				thirst += appetite * 1.5f;
+				damage = Mathf.Max(0, damage - healRate);
+			}
 		}
 
 		public void Feed() {

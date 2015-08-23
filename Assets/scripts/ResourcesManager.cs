@@ -9,7 +9,7 @@ namespace Completed {
 		public int playerLevel = 1;
 		public int food = 100;
 		public int water = 100;
-		public int money = 0;
+		public float money = 0;
 		public int science = 0;
 		public float timePlayed = 0f;	
 		public int secondsPerDay = 600; // 10 min / day

@@ -32,10 +32,10 @@ namespace Completed	{
 			level.text = "Level " + resources.playerLevel;
 
 			food.text = "FOOD: " + resources.food.ToString ();
-			water.text = "WATER: " + resources.food.ToString ();
+			water.text = "WATER: " + resources.water.ToString ();
 			monsterCount.text = "MONSTERS: " + board.numberMonsters + " / " + board.numberCages;
-			money.text = "MONEY: " + resources.money;
-			science.text = "SCIENCE: " + resources.money;
+			money.text = "MONEY: $" + resources.money.ToString ("F2");
+			science.text = "SCIENCE: " + resources.science;
 
 		}
 	}

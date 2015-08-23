@@ -17,6 +17,7 @@ namespace Completed
 		public int numberCages = 3;
 		public int numberMonsters = 2;
 		public GameObject cage; // prefab sprite w/ mgr
+		public float cagePrice = 100f;
 		private List <CageManager> cages; // programmatically placed
 
 		public GameObject[] monsters; // monster prefabs, later accessed through cages
@@ -27,11 +28,15 @@ namespace Completed
 
 		private Transform boardHolder;     
 
+		private ResourcesManager resources;
+
 		
 		//Sets up the outer walls and floor (background) of the game board.
 		void BoardSetup ()
 		{
-			//Instantiate Board and set boardHolder to its transform.
+
+			resources = gameObject.GetComponent<ResourcesManager> ();
+
 			boardHolder = new GameObject ("Board").transform;
 
 			for(int y = 0; y < rows*2; y=y+2) {	
@@ -73,20 +78,75 @@ namespace Completed
 			player.transform.SetParent (boardHolder);
 		}
 				
-		//SetupScene initializes our level and calls the previous functions to lay out the game board
 		public void SetupScene (int level)
 		{
 
 			cages = new List<CageManager> ();		
+
 			monsterManagers = new List<MonsterManager> ();
 
-			//Creates the outer walls and floor.
 			BoardSetup ();
 
 			PlayerSetup ();
 
-			//Instantiate the exit tile in the upper right hand corner of our game board
-			// Instantiate (exit, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
 		}
+
+
+		public void buildCage() {
+		
+			if (resources.money < cagePrice) 
+				return;
+
+			resources.money -= cagePrice;
+
+			numberCages++;
+			CageManager lastCageMgr = cages [cages.Count - 1];
+
+			int x = (int)lastCageMgr.gameObject.transform.position.x + 2;
+			int y = (int)lastCageMgr.gameObject.transform.position.y;
+
+			GameObject c = Instantiate (cage, new Vector3 (x, y, -.1f), Quaternion.identity) as GameObject;
+			c.transform.SetParent (boardHolder);			
+			CageManager cm = c.GetComponent<CageManager>();
+			cages.Add(cm);
+
+		
+		}
+
+		public void AddMonster() {
+
+			// find 1st empty cage
+			CageManager emptyCageMgr = null;
+			foreach (CageManager cm in cages) {
+				if (cm.monster == null) {
+					emptyCageMgr = cm;
+					break;
+				}			
+			}
+
+			if (emptyCageMgr == null)
+				return;
+
+			
+			// add monster to cage
+
+			numberMonsters++;
+
+			GameObject c = emptyCageMgr.gameObject;
+
+			int x = (int)emptyCageMgr.gameObject.transform.position.x;
+			int y = (int)emptyCageMgr.gameObject.transform.position.y;
+
+			int randomIndex = Random.Range(0,(monsters.Length - 1));
+			GameObject randomMonster = monsters[randomIndex];
+			GameObject m = Instantiate (randomMonster, new Vector3 (x, y, -.05f), Quaternion.identity) as GameObject;
+			m.transform.SetParent(c.transform);
+			MonsterManager mm = m.GetComponent<MonsterManager>();
+			monsterManagers.Add (mm);													
+			emptyCageMgr.monster = m; // bookkeeping
+		
+		}
+
 	}
+
 }
