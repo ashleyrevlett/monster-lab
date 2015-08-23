@@ -11,6 +11,9 @@ namespace Completed
 	public class BoardManager : MonoBehaviour
 	{
 
+		public GameObject actionPanel; 
+		private RectTransform actionPanelRect;
+
 		public int columns = 8;                                         //Number of columns in our game board.
 		public int rows = 4;                                            //Number of rows in our game board.
 		public GameObject floorTile;
@@ -35,14 +38,16 @@ namespace Completed
 
 		private ResourcesManager resources;
 		private AlertPanelManager alertManager;
-		
+
+		public GameObject activeMonster = null;
+
 		//Sets up the outer walls and floor (background) of the game board.
 		void BoardSetup ()
 		{
-
+			
+			actionPanelRect = actionPanel.GetComponent<RectTransform> ();
 			resources = gameObject.GetComponent<ResourcesManager> ();
 			alertManager = GameObject.Find ("AlertPanel").GetComponent<AlertPanelManager>();
-
 			boardHolder = new GameObject ("Board").transform;
 
 			for(int y = 0; y < rows*2; y=y+2) {	
@@ -56,9 +61,8 @@ namespace Completed
 						GameObject c = Instantiate (cage, new Vector3 (x, y, -.1f), Quaternion.identity) as GameObject;
 						c.transform.SetParent (boardHolder);
 
-						CageManager cm = c.GetComponent<CageManager>();
-
 						// add monster to cage
+						CageManager cm = c.GetComponent<CageManager>();
 						if (monsterManagers.Count < numberMonsters) {
 							int randomIndex = Random.Range(0,(monsters.Length - 1));
 							GameObject randomMonster = monsters[randomIndex];
@@ -77,6 +81,8 @@ namespace Completed
 
 				}
 			}	
+
+			HideActionPanel ();
 
 		}
 
@@ -183,9 +189,23 @@ namespace Completed
 
 		}
 
-		public void DoExperiment(MonsterManager mm) {
+		public void Water() {		
+			HideActionPanel ();
+			MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
+			mm.Water ();
+		}
+				
+		public void Feed() {			
+			HideActionPanel ();
+			MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
+			mm.Feed ();
+		}
 
-			GameObject monster = mm.gameObject;
+		public void DoExperiment() {
+
+			HideActionPanel ();
+
+			MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
 
 			// find open lab table
 			TableManager tm = tables.Find (x => x.monster == null);
@@ -198,25 +218,50 @@ namespace Completed
 			}
 
 			// assign monster to open lab table
-			tm.monster = monster;
+			tm.monster = activeMonster;
 
 			// move position of monster sprite to lab table
-			monster.transform.position = tm.gameObject.transform.position;
-			StartCoroutine(mm.DealDamage (1f, 10, 1f));		
-			StartCoroutine(resources.GiveMoney (1f, 10, 1f));		
+			Vector3 newPos = tm.gameObject.transform.position;
+			newPos.y += .2f;
+			activeMonster.transform.position = newPos;
+			StartCoroutine(mm.DealDamage (5f, 5, 1f));		
+			StartCoroutine(resources.GiveMoney (10f, 5, 1f));		
 
 		}
 
-		public void EndExperiment(MonsterManager mm) {
+		public void EndExperiment() {
 		
 			// find monster's home cage 
-			CageManager cage = cages.Find (x=> x.monster == mm.gameObject);
-			TableManager table = tables.Find (x=> x.monster == mm.gameObject);
+			CageManager cage = cages.Find (x=> x.monster == activeMonster);
+			TableManager table = tables.Find (x=> x.monster == activeMonster);
+
+			Vector3 newPos = new Vector3 (cage.gameObject.transform.position.x, cage.gameObject.transform.position.y, -.05f);
+			activeMonster.transform.position = newPos;
 
 			table.monster = null;
-			mm.gameObject.transform.position = cage.gameObject.transform.position;
+			activeMonster = null;
 
-		
+
+
+		}
+
+		public void HideActionPanel() {
+			actionPanel.SetActive (false);
+		}
+
+		public void ShowActionPanel(Vector3 position) {
+			StartCoroutine(WaitFrameAndShow (position));
+		}
+
+		private IEnumerator WaitFrameAndShow(Vector3 position) {
+			yield return 0;
+			ShowPanel (position);
+		}
+
+		private void ShowPanel(Vector3 position) {
+			Vector3 pos = Camera.main.WorldToScreenPoint(position);	
+			actionPanelRect.position = new Vector2(pos.x, pos.y);
+			actionPanel.SetActive (true);
 		}
 
 	}

@@ -23,19 +23,15 @@ namespace Completed
 		private float appetite = 0;
 
 		public Canvas statsCanvas;
-		public Canvas buttonCanvas;
 		public Text nameText;
 		public Text healthText;
 		public Text thirstText;
 		public Text hungerText;
 
-		private RectTransform buttonRT;
 		private RectTransform statsRT;
 
 		public string[] firstNames;
 		public string[] lastNames;
-
-		public GameObject actionPanel;
 
 		private ResourcesManager resources;
 		private BoardManager boardManager;
@@ -48,7 +44,6 @@ namespace Completed
 			resources = GameObject.Find ("GameManager").GetComponent<ResourcesManager> ();
 			boardManager = GameObject.Find ("GameManager").GetComponent<BoardManager> ();
 
-			buttonRT = buttonCanvas.GetComponent<RectTransform> ();
 			statsRT = statsCanvas.GetComponent<RectTransform> ();
 
 			int randomFirstIdx = Random.Range (0, firstNames.Length);
@@ -60,19 +55,18 @@ namespace Completed
 
 			InvokeRepeating ("Tick", 5f, 5f);
 
-			actionPanel.SetActive (false);
-
 		}
 
 		
 		// Update is called once per frame
 		void Update () {
 
+			if (cageManager == null) 
+				return;
 			
 			// position labels
 			Vector3 pos = Camera.main.WorldToScreenPoint(cageManager.gameObject.transform.position);	
 			statsRT.position = new Vector2(pos.x + 30f, pos.y - 70f);
-			buttonRT.position = new Vector2(pos.x, pos.y);
 				
 
 			if (!isAlive)
@@ -114,43 +108,31 @@ namespace Completed
 
 		public void Feed() {
 			hunger = 0f;	
-			resources.food = (int) Mathf.Max (0f, resources.food - 1f);
-			actionPanel.SetActive (false);
+			resources.food = (int) Mathf.Max (0f, resources.food - 1f);		
 			Debug.Log ("Fed");
 		}
 
 		public void Water() {
 			thirst = 0f;	
 			resources.water = (int) Mathf.Max (0f, resources.water - 1f);
-			actionPanel.SetActive (false);
 			Debug.Log ("Watered");
 
 		}
-
-		public void Experiment() {
-			actionPanel.SetActive (false);
-			Debug.Log ("Experimenting");
-			boardManager.DoExperiment (this);		
-		}
-
-		public void ClosePanel() {
-			actionPanel.SetActive (false);
-		}
-
 
 		public IEnumerator DealDamage(float amount, int numberTimes, float delayTime ) {		
 			for (int i = 0; i < numberTimes; i++) {					
 				damage = Mathf.Min (100f, damage + amount);	
 				yield return new WaitForSeconds (delayTime);	
 			}
-			boardManager.EndExperiment (this);
+			boardManager.EndExperiment ();
 
 		}
 
 
 		// mouse click on monster -> show action panel	
 		void OnMouseDown() {
-			actionPanel.SetActive (true);
+			boardManager.ShowActionPanel ( cageManager.gameObject.transform.position );
+			boardManager.activeMonster = this.gameObject;
 		}
 
 	}
