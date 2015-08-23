@@ -14,9 +14,12 @@ namespace Completed	{
 		public Text textBox; 
 		public float secondsPerStatement = 5f;
 		private List<string> statementsToShow;
+		public GameObject actionButton;
 
 		// Use this for initialization
 		void Start () {
+
+			actionButton.SetActive (false);
 
 			statementsToShow = new List<string> (statements);
 
@@ -33,6 +36,7 @@ namespace Completed	{
 				textBox.text = t;
 				yield return new WaitForSeconds(secondsPerStatement);			
 			}
+			actionButton.SetActive (true);
 		}
 
 

@@ -7,7 +7,6 @@ public class AlertPanelManager : MonoBehaviour {
 	public Text errorText;
 
 	void Start () {	
-		ClosePanel ();
 	}
 
 	public void ClosePanel() {

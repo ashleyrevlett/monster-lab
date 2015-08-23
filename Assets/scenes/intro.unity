@@ -138,12 +138,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextSceneName: main
   statements:
-  - GENECORP recently discovered several creatures that are of an unknown origin.
-  - 'As GENECORP''s lead scientist, your job is to learn more about these creatures,
-    including how they may be used to benefit GENECORP. '
-  - You may use any means necessary.
+  - 'GENECORP recently discovered several creatures of an unknown origin. '
+  - We want you to learn more about these creatures. Are they dangerous? Can we use
+    them to our benefit?
+  - 'The lab is all yours, Doctor. '
   textBox: {fileID: 630855279}
   secondsPerStatement: 4
+  actionButton: {fileID: 1624504396}
 --- !u!114 &416281463
 MonoBehaviour:
   m_ObjectHideFlags: 0

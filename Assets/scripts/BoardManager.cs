@@ -38,7 +38,7 @@ namespace Completed
 		private List <TableManager> tables;
 		public float tablePrice = 100f;
 
-		private Transform boardHolder;     
+		private Transform boardHolder = null;     
 
 		private ResourcesManager resources;
 		public AlertPanelManager alertManager;
@@ -51,7 +51,16 @@ namespace Completed
 
 
 		void Start() {
-			notifManager = GameObject.Find ("Notifications").GetComponent<NotificationsManager> ();
+
+			notifManager = GameObject.Find ("Notifications").GetComponent<NotificationsManager> ();						
+			actionPanelRect = actionPanel.GetComponent<RectTransform> ();
+			resources = gameObject.GetComponent<ResourcesManager> ();
+			alertManager = GameObject.Find ("AlertPanel").GetComponent<AlertPanelManager>();
+			boardHolder = new GameObject ("Board").transform;
+
+			alertManager.ClosePanel();
+
+
 		}
 
 		void Update() {
@@ -67,11 +76,6 @@ namespace Completed
 		//Sets up the outer walls and floor (background) of the game board.
 		void BoardSetup ()
 		{
-			
-			actionPanelRect = actionPanel.GetComponent<RectTransform> ();
-			resources = gameObject.GetComponent<ResourcesManager> ();
-			alertManager = GameObject.Find ("AlertPanel").GetComponent<AlertPanelManager>();
-			boardHolder = new GameObject ("Board").transform;
 
 			for(int y = 0; y < rows*2; y=y+2) {	
 				for(int x = 0; x < columns*2; x=x+2) {
@@ -117,10 +121,25 @@ namespace Completed
 
 		public void SetupScene (int level)
 		{
+			
 			// init lists
 			cages = new List<CageManager> ();		
 			monsterManagers = new List<MonsterManager> ();
 			tables = new List<TableManager> ();
+			cages.Clear ();
+			monsterManagers.Clear ();
+			tables.Clear();
+
+			StopAllCoroutines ();
+			CancelInvoke ();
+
+			if (boardHolder != null) {
+				if(boardHolder.childCount > 0) {
+					foreach (Transform childTransform in boardHolder) {
+						Destroy(childTransform.gameObject);
+					}
+				}
+			}
 
 			// build board
 			BoardSetup ();
@@ -132,8 +151,6 @@ namespace Completed
 
 		public void buildCage() {
 		
-
-
 			if (resources.money < cagePrice) {
 				alertManager.ShowMessage("Not enough money to purchase!");
 				return;
