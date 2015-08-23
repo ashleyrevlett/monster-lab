@@ -14,20 +14,21 @@ namespace Completed {
 		public float timePlayed = 0f;	
 		public int secondsPerDay = 600; // 10 min / day
 		public int daysPlayed = 0;
-		
-		// Use this for initialization
-		void Start () {
-		
-		}
-		
-		// Update is called once per frame
-		void Update () {
-		
+
+
+		void Update () {		
 			timePlayed += Time.deltaTime;
-
 			daysPlayed = Mathf.FloorToInt(timePlayed / secondsPerDay);
-
 		}
+
+		public IEnumerator GiveMoney(float amount, int numberTimes, float delayTime ) {		
+			for (int i = 0; i < numberTimes; i++) {					
+				money = Mathf.Max (0f, money + amount);	
+				yield return new WaitForSeconds (delayTime);	
+			}
+		}
+
+
 	}
 
 }

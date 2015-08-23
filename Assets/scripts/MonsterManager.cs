@@ -38,12 +38,15 @@ namespace Completed
 		public GameObject actionPanel;
 
 		private ResourcesManager resources;
+		private BoardManager boardManager;
+		public CageManager cageManager; // hook up from bm
 
 
 		// Use this for initialization
 		void Start () {
 
 			resources = GameObject.Find ("GameManager").GetComponent<ResourcesManager> ();
+			boardManager = GameObject.Find ("GameManager").GetComponent<BoardManager> ();
 
 			buttonRT = buttonCanvas.GetComponent<RectTransform> ();
 			statsRT = statsCanvas.GetComponent<RectTransform> ();
@@ -60,14 +63,17 @@ namespace Completed
 			actionPanel.SetActive (false);
 
 		}
+
 		
 		// Update is called once per frame
 		void Update () {
 
+			
 			// position labels
-			Vector3 pos = Camera.main.WorldToScreenPoint(gameObject.transform.position);	
+			Vector3 pos = Camera.main.WorldToScreenPoint(cageManager.gameObject.transform.position);	
 			statsRT.position = new Vector2(pos.x + 30f, pos.y - 70f);
 			buttonRT.position = new Vector2(pos.x, pos.y);
+				
 
 			if (!isAlive)
 				return;
@@ -87,6 +93,7 @@ namespace Completed
 			if (thirst >= 100f)
 				damage -= (Time.deltaTime * thirstDamage);
 		
+
 		}
 
 		void Die() {
@@ -107,34 +114,41 @@ namespace Completed
 
 		public void Feed() {
 			hunger = 0f;	
-			resources.food = (int) Mathf.Max (0f, resources.food - 10f);
+			resources.food = (int) Mathf.Max (0f, resources.food - 1f);
 			actionPanel.SetActive (false);
 			Debug.Log ("Fed");
 		}
 
 		public void Water() {
 			thirst = 0f;	
-			resources.water = (int) Mathf.Max (0f, resources.water - 10f);
+			resources.water = (int) Mathf.Max (0f, resources.water - 1f);
 			actionPanel.SetActive (false);
 			Debug.Log ("Watered");
 
 		}
 
 		public void Experiment() {
-			damage += 20f;	
-			resources.science += 40;
-			resources.money += 100;
 			actionPanel.SetActive (false);
-			Debug.Log ("Experimented");
-
+			Debug.Log ("Experimenting");
+			boardManager.DoExperiment (this);		
 		}
 
 		public void ClosePanel() {
 			actionPanel.SetActive (false);
 		}
 
-		// mouse click on monster -> show action panel
 
+		public IEnumerator DealDamage(float amount, int numberTimes, float delayTime ) {		
+			for (int i = 0; i < numberTimes; i++) {					
+				damage = Mathf.Min (100f, damage + amount);	
+				yield return new WaitForSeconds (delayTime);	
+			}
+			boardManager.EndExperiment (this);
+
+		}
+
+
+		// mouse click on monster -> show action panel	
 		void OnMouseDown() {
 			actionPanel.SetActive (true);
 		}
