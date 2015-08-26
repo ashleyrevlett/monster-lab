@@ -11,13 +11,10 @@ public class AlertPanelManager : MonoBehaviour {
 
 	public void ClosePanel() {
 		gameObject.SetActive (false);
-		StopAllCoroutines ();
 	}
 
 	public void OpenPanel() {
-		StopAllCoroutines ();
 		gameObject.SetActive (true);
-		StartCoroutine (CloseInSeconds (3f));
 	}
 
 	public void ShowMessage(string message) {

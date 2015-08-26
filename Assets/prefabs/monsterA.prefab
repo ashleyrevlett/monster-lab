@@ -195,12 +195,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deadSprite: {fileID: 21300000, guid: a75b4026abfea41df8b57b981d9ec9c6, type: 3}
   monsterName: unnamed
-  damage: 0
-  hunger: 0
-  thirst: 0
   isAlive: 1
-  hungerDamage: 2
-  thirstDamage: 5
+  hungerDamage: 10
+  thirstDamage: 10
   healRate: .100000001
   appetiteMinMax: {x: .100000001, y: 2}
   statsCanvas: {fileID: 22328608}
@@ -222,6 +219,21 @@ MonoBehaviour:
   - duk
   - mare
   - asaur
+  possibleFacts:
+  - This creature's teeth are dull from gnawing on the bones of its enemies. Probably
+    shouldn't go picking any fights with it.
+  - 'Is it a male? Female? Neither! This creature reproduces asexually, preferring
+    the company of its own right paw to that of other creatures. '
+  - 'This creature not only speaks, but has a wicked sense of humor. Really - it''s
+    kind of disturbing. The things it says about my mother... '
+  - 'This creature leaves a trail of slime from cage to table. Maybe we can bottle
+    it and sell it. There''s got to be some medicinal property in there, right? '
+  - 'Experimented with training creature on menial tasks. Still struggles with doing
+    the dishes, but getting better at taking out the trash! '
+  - 'Black dirt from the creature''s native habitat still sticks to it. Microbial
+    activity is off the charts. I should probably be wearing gloves. '
+  - 'It makes these pitiful little whimpering sounds with every experiment... is it
+    wrong to feel bad for a monster? '
   cageManager: {fileID: 0}
 --- !u!114 &11452134
 MonoBehaviour:
@@ -378,7 +390,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
 --- !u!224 &22413838
 RectTransform:
   m_ObjectHideFlags: 1

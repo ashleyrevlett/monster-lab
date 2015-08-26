@@ -16,7 +16,7 @@ namespace Completed	{
 		private List<string> statementsToShow;
 		public GameObject actionButton;
 
-		// Use this for initialization
+
 		void Start () {
 
 			actionButton.SetActive (false);
@@ -28,6 +28,16 @@ namespace Completed	{
 			}
 				
 		}
+
+		void Update() {
+		
+			if (Input.GetKeyDown ("space")) {
+				StopAllCoroutines();
+				StartGame();
+			}
+
+		}
+
 
 		IEnumerator ShowStatements() {
 			while (statementsToShow.Count > 0) {		

@@ -1298,7 +1298,7 @@ RectTransform:
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 100}
+  m_SizeDelta: {x: 300, y: 150}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &866747133
 MonoBehaviour:
@@ -2253,6 +2253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cdf0be580e2448318685bb8e20b81c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  introStatement: Click a monster to interact with it. Run experiments to earn money.
   actionPanel: {fileID: 900056954}
   columns: 5
   rows: 2
@@ -2272,7 +2273,6 @@ MonoBehaviour:
   labTable: {fileID: 165464, guid: a3ef707d589c44bcc8d57a7e84f58864, type: 2}
   tablePrice: 100
   alertManager: {fileID: 866747133}
-  activeMonster: {fileID: 0}
   foodPrice: 10
 --- !u!114 &1285541873
 MonoBehaviour:
@@ -2311,10 +2311,10 @@ MonoBehaviour:
   playerLevel: 1
   food: 10
   water: 10
-  money: 500
+  money: 1500
   science: 0
   timePlayed: 0
-  secondsPerDay: 600
+  secondsPerDay: 100
   daysPlayed: 0
 --- !u!114 &1285541876
 MonoBehaviour:
@@ -2874,8 +2874,8 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: .5, y: 1}
   m_AnchorMax: {x: .5, y: 1}
-  m_AnchoredPosition: {x: -90, y: -60}
-  m_SizeDelta: {x: 180, y: 60}
+  m_AnchoredPosition: {x: -140, y: -115}
+  m_SizeDelta: {x: 280, y: 110}
   m_Pivot: {x: 0, y: 0}
 --- !u!1 &1840819329
 GameObject:
@@ -2953,7 +2953,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1285541872}
-        m_MethodName: DoExperiment
+        m_MethodName: Experiment
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

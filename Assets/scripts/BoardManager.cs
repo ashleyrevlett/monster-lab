@@ -11,6 +11,8 @@ namespace Completed
 	public class BoardManager : MonoBehaviour
 	{
 
+		public string introStatement = "Click a monster to interact with it. Run experiments to earn money.";
+
 		public GameObject actionPanel; 
 		private RectTransform actionPanelRect;
 
@@ -43,11 +45,11 @@ namespace Completed
 		private ResourcesManager resources;
 		public AlertPanelManager alertManager;
 
-		public GameObject activeMonster = null;
-
 		public float foodPrice = 10f;
 
 		private NotificationsManager notifManager;
+
+		private MonsterManager focusedMonster; // monster selected by clicking cage
 
 
 		void Start() {
@@ -60,7 +62,16 @@ namespace Completed
 
 			alertManager.ClosePanel();
 
+			//DoIntro ();
 
+		}
+
+		public List<TableManager> GetTables() {
+			return (tables);
+		}
+
+		public List<CageManager> GetCages() {
+			return (cages);
 		}
 
 		void Update() {
@@ -206,8 +217,11 @@ namespace Completed
 				alertManager.ShowMessage("You need more money to purchase a Monster.");
 				return;
 			}
-			
-			resources.money -= monsterPrice;
+						
+			if (cages.Count <= monsterManagers.Count) {
+				alertManager.ShowMessage("You need an empty cage before purchasing a new Monster.");
+				return;
+			}
 
 			// find 1st empty cage
 			CageManager emptyCageMgr = null;
@@ -282,78 +296,89 @@ namespace Completed
 			notifManager.ShowNotice (msg);
 
 		}
+			
 
-		public void Water() {		
+		public void Feed() {
+			
 			HideActionPanel ();
 
-			if (resources.water > 0) {
-				MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
-				mm.Water ();
-			} else {
-				alertManager.ShowMessage("No water left!");
+			if (focusedMonster == null) {
+				Debug.Log ("No focused monster?");
+				return;
 			}
-		}
-				
-		public void Feed() {			
-			HideActionPanel ();
 
 			if (resources.food > 0) {
-				MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
-				mm.Feed ();
+				focusedMonster.Feed ();
+				resources.food = (int) Mathf.Max (0f, resources.food - 1f);
+				string msg = string.Format("Fed {0}. Food Remaining: {1}", focusedMonster.monsterName, resources.food);
+				notifManager.ShowNotice (msg);
 			} else {
 				alertManager.ShowMessage("No food left!");
 			}
 
+			focusedMonster = null; // monster no longer focused
+
 		}
 
-		public void DoExperiment() {
 
+		public void Water() {
+			
 			HideActionPanel ();
-
-			MonsterManager mm = activeMonster.GetComponent<MonsterManager> ();
-
-			if (mm == null) {
-				alertManager.ShowMessage ("You have no monsters to experiment on!");
-				return;
-			}		
-
-			// find open lab table
-			TableManager tm = tables.Find (x => x.monster == null);
-
-			// if there's no open table, can't experiment
-			if (tm == null) {
-				Debug.Log ("No table to experiment on!");
-				alertManager.ShowMessage("You need an open lab table to conduct experiments!");
+						
+			if (focusedMonster == null) {
+				Debug.Log ("No focused monster?");
 				return;
 			}
 
+			if (resources.water > 0) {
+				focusedMonster.Water();
+				resources.water = (int) Mathf.Max (0f, resources.water - 1f);
+				string msg = string.Format("Watered {0}. Water Remaining: {1}.", focusedMonster.monsterName, resources.water);
+				notifManager.ShowNotice (msg);
+			} else {
+				alertManager.ShowMessage("No water left!");
+			}
+
+			focusedMonster = null; // monster no longer focused
+
+		}
+
+
+		public void Experiment() {
+					
+			HideActionPanel ();
+			
+			// find empty lab table
+			TableManager table = tables.Find (x => x.monster == null);
+			
+			// if there's no open table, can't experiment
+			if (table == null) {
+				alertManager.ShowMessage("You need an open lab table to conduct experiments!");
+				return;
+			}
+			
 			// assign monster to open lab table
-			tm.monster = activeMonster;
-
+			table.monster = focusedMonster.gameObject;
+			
 			// move position of monster sprite to lab table
-			Vector3 newPos = tm.gameObject.transform.position;
+			Vector3 newPos = table.gameObject.transform.position;
 			newPos.y += .2f;
-			activeMonster.transform.position = newPos;
-			StartCoroutine(mm.DealDamage (5f, 5, 1f));		
+			focusedMonster.gameObject.transform.position = newPos;
+
+			// deal damage and ++money
+			StartCoroutine(focusedMonster.DealDamage (5f, 5, 1f));		
 			StartCoroutine(resources.GiveMoney (10f, 5, 1f));		
+		
+			focusedMonster = null; // monster no longer focused
 
 		}
 
-		public void EndExperiment(MonsterManager mm) {
-		
-			// find monster's home cage 
-			CageManager cage = cages.Find (x=> x.monster == mm.gameObject);
-			TableManager table = tables.Find (x=> x.monster == mm.gameObject);
 
-			Vector3 newPos = new Vector3 (cage.gameObject.transform.position.x, cage.gameObject.transform.position.y, -.05f);
-			mm.gameObject.transform.position = newPos;
-
-			table.monster = null;
-			activeMonster = null;
-		
-			notifManager.ShowNotice ("Experiment Complete!");
-
+		public void SetMonsterFocus(MonsterManager monster) {
+			focusedMonster = monsterManagers.Find (x => x == monster);
+			Debug.Log ("Focused Monster is: " + focusedMonster);
 		}
+
 
 		public void HideActionPanel() {
 			actionPanel.SetActive (false);
