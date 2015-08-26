@@ -2311,7 +2311,7 @@ MonoBehaviour:
   playerLevel: 1
   food: 10
   water: 10
-  money: 1500
+  money: 250
   science: 0
   timePlayed: 0
   secondsPerDay: 100

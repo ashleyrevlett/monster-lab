@@ -62,7 +62,7 @@ namespace Completed
 
 			alertManager.ClosePanel();
 
-			//DoIntro ();
+
 
 		}
 
@@ -132,7 +132,6 @@ namespace Completed
 
 		public void SetupScene (int level)
 		{
-			
 			// init lists
 			cages = new List<CageManager> ();		
 			monsterManagers = new List<MonsterManager> ();
@@ -156,6 +155,7 @@ namespace Completed
 			BoardSetup ();
 
 			PlayerSetup ();
+
 
 		}
 
